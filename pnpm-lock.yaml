@@ -42,7 +42,7 @@ importers:
   '@app/client':
     dependencies:
       '@blogui91/arsenal':
-        specifier: workspace:^0.0.0
+        specifier: workspace:^0.0.1
         version: link:../../packages/arsenal
       '@blogui91/tailwind-config':
         specifier: workspace:^0.0.0

@@ -9,7 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@blogui91/arsenal": "workspace:^0.0.0",
+    "@blogui91/arsenal": "workspace:^0.0.1",
     "@blogui91/tailwind-config": "workspace:^0.0.0",
     "@blogui91/ui-lib": "workspace:^0.0.0",
     "vue": "^3.2.47"
