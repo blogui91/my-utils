@@ -8,6 +8,10 @@
   "files": [
     "dist"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/blogui91/my-utils"
+  },
   "publishConfig": {
     "@blogui91:registry": "https://npm.pkg.github.com/" 
   },
