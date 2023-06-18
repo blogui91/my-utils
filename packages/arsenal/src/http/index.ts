@@ -1,16 +1,15 @@
 /* eslint-disable no-unused-vars */
-import axios from 'axios';
+import { Axios } from 'axios';
 
 import { Config, CurrentUser, LoginFormData, LoginResponse, RegisterFormData, RegisterResponse } from './types';
 
-class Auth {
+class Auth extends Axios {
   private baseURL: string = '';
   private loginEndpoint: string = 'auth/login';
   private logoutEndpoint: string = 'auth/logout';
   private currentUserEndpoint: string = 'auth/me';
   private registerEndpoint: string = 'auth/register';
   private tokenKey = 'token';
-  private http = axios.create();
 
   public onRegister?: (data: RegisterResponse) => void;
   public onLogin?: (data: LoginResponse) => void;
@@ -20,11 +19,11 @@ class Auth {
   public user: CurrentUser | null = null;
 
   constructor(config?: Config) {
-    this.http = axios.create();
-    
+    super();
+
     if (config?.baseURL) {
       this.baseURL = config.baseURL;
-      this.http.defaults.baseURL = this.baseURL;
+      this.defaults.baseURL = this.baseURL;
     }
     
     if (config?.loginEndpoint) {
@@ -43,10 +42,10 @@ class Auth {
       this.currentUserEndpoint = config.currentUserEndpoint;
     }
 
-    this.http.defaults.headers.common['Content-Type'] = 'application/json';
-    this.http.defaults.headers.common['Accept'] = 'application/json';
+    this.defaults.headers.common['Content-Type'] = 'application/json';
+    this.defaults.headers.common['Accept'] = 'application/json';
 
-    this.http.interceptors.request.use((config) => {
+    this.interceptors.request.use((config) => {
       const token = localStorage.getItem(this.tokenKey);
 
       if (token) {
@@ -59,7 +58,7 @@ class Auth {
 
   setBaseURL = (baseURL: string) => {
     this.baseURL = baseURL;
-    this.http.defaults.baseURL = baseURL;
+    this.defaults.baseURL = baseURL;
 
     return this;
   }
@@ -89,7 +88,7 @@ class Auth {
   }
 
   register = async (formData: RegisterFormData) => {
-    const response = await this.http.post<RegisterFormData, RegisterResponse>(this.registerEndpoint, {
+    const response = await this.post<RegisterFormData, RegisterResponse>(this.registerEndpoint, {
       ...formData,
     });
 
@@ -101,7 +100,7 @@ class Auth {
   }
 
   async login({ email, password }: LoginFormData) {
-    const response = await this.http.post<LoginFormData, LoginResponse>(this.loginEndpoint, {
+    const response = await this.post<LoginFormData, LoginResponse>(this.loginEndpoint, {
       email,
       password,
     });
@@ -123,7 +122,7 @@ class Auth {
 
   async logout() {
     try {
-      const response = await this.http.post(this.logoutEndpoint);
+      const response = await this.post(this.logoutEndpoint);
 
       localStorage.removeItem(this.tokenKey);
 
@@ -149,6 +148,7 @@ class Auth {
     return !!token;
   }
 
+  getHttpInstance = () => this;
 
   async getCurrentUser() {
     const token = localStorage.getItem(this.tokenKey);
@@ -158,7 +158,7 @@ class Auth {
     }
 
     try {
-      const response = await this.http.get<{ data: CurrentUser }>(this.currentUserEndpoint);
+      const response = await this.get<{ data: CurrentUser }>(this.currentUserEndpoint);
 
       if (this.onUserChange) {
         this.onUserChange(response.data.data);
@@ -178,4 +178,4 @@ class Auth {
 
 }
 
-export const createAuth = (config?: Config) => new Auth(config);
+export const createHttp = (config?: Config) => new Auth(config);
