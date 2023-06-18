@@ -12,7 +12,7 @@
     "vue": "^3.2.47"
   },
   "devDependencies": {
-    "@blogui91/arsenal": "workspace:^0.0.1",
+    "@blogui91/arsenal": "workspace:^0.0.2",
     "@blogui91/tailwind-config": "workspace:^0.0.0",
     "@blogui91/ui-lib": "workspace:^0.0.0",
     "@vitejs/plugin-vue": "^4.1.0",
