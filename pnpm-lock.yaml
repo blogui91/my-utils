@@ -42,13 +42,13 @@ importers:
   '@app/client':
     dependencies:
       '@blogui91/arsenal':
-        specifier: workspace:^
+        specifier: workspace:^0.0.0
         version: link:../../packages/arsenal
       '@blogui91/tailwind-config':
-        specifier: workspace:^
+        specifier: workspace:^0.0.0
         version: link:../../packages/tailwind-config
       '@blogui91/ui-lib':
-        specifier: workspace:^
+        specifier: workspace:^0.0.0
         version: link:../../packages/ui-lib
       vue:
         specifier: ^3.2.47
