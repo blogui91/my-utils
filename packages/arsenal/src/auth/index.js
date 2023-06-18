@@ -1,24 +1,40 @@
+/* eslint-disable no-unused-vars */
 import axios from 'axios';
 class Auth {
-    baseURL;
-    loginURL = 'auth/login';
-    logoutURL = 'auth/logout';
-    registerURL = 'auth/register';
+    baseURL = '';
+    loginEndpoint = 'auth/login';
+    logoutEndpoint = 'auth/logout';
+    currentUserEndpoint = 'auth/me';
+    registerEndpoint = 'auth/register';
     tokenKey = 'token';
-    // eslint-disable-next-line no-unused-vars
+    http = axios.create();
     onRegister;
-    // eslint-disable-next-line no-unused-vars
     onLogin;
-    // eslint-disable-next-line no-unused-vars
     onLogout;
+    onUnauthorized;
+    onUserChange;
+    user = null;
     constructor(config) {
-        this.baseURL = config.baseURL;
-        this.loginURL = config.loginURL;
-        this.logoutURL = config.logoutURL;
-        axios.defaults.baseURL = this.baseURL;
-        axios.defaults.headers.common['Content-Type'] = 'application/json';
-        axios.defaults.headers.common['Accept'] = 'application/json';
-        axios.interceptors.request.use((config) => {
+        this.http = axios.create();
+        if (config?.baseURL) {
+            this.baseURL = config.baseURL;
+            this.http.defaults.baseURL = this.baseURL;
+        }
+        if (config?.loginEndpoint) {
+            this.loginEndpoint = config.loginEndpoint;
+        }
+        if (config?.logoutEndpoint) {
+            this.logoutEndpoint = config.logoutEndpoint;
+        }
+        if (config?.registerEndpoint) {
+            this.registerEndpoint = config.registerEndpoint;
+        }
+        if (config?.currentUserEndpoint) {
+            this.currentUserEndpoint = config.currentUserEndpoint;
+        }
+        this.http.defaults.headers.common['Content-Type'] = 'application/json';
+        this.http.defaults.headers.common['Accept'] = 'application/json';
+        this.http.interceptors.request.use((config) => {
             const token = localStorage.getItem(this.tokenKey);
             if (token) {
                 config.headers.Authorization = `Bearer ${token}`;
@@ -26,8 +42,29 @@ class Auth {
             return config;
         });
     }
+    setBaseURL = (baseURL) => {
+        this.baseURL = baseURL;
+        this.http.defaults.baseURL = baseURL;
+        return this;
+    };
+    setLoginEndpoint = (loginEndpoint) => {
+        this.loginEndpoint = loginEndpoint;
+        return this;
+    };
+    setLogoutEndpoint = (logoutEndpoint) => {
+        this.logoutEndpoint = logoutEndpoint;
+        return this;
+    };
+    setRegisterEndpoint = (registerEndpoint) => {
+        this.registerEndpoint = registerEndpoint;
+        return this;
+    };
+    setCurrentUserEndpoint = (currentUserEndpoint) => {
+        this.currentUserEndpoint = currentUserEndpoint;
+        return this;
+    };
     register = async (formData) => {
-        const response = await axios.post(this.registerURL, {
+        const response = await this.http.post(this.registerEndpoint, {
             ...formData,
         });
         if (this.onRegister) {
@@ -36,21 +73,29 @@ class Auth {
         return response.data;
     };
     async login({ email, password }) {
-        const response = await axios.post(this.loginURL, {
+        const response = await this.http.post(this.loginEndpoint, {
             email,
             password,
         });
         localStorage.setItem(this.tokenKey, response.data.token);
+        this.user = response.data.data;
         if (this.onLogin) {
             this.onLogin(response);
+        }
+        if (this.onUserChange) {
+            this.onUserChange(response.data.data);
         }
         return response.data;
     }
     ;
-    logout = async () => {
+    async logout() {
         try {
-            const response = await axios.post(this.logoutURL);
+            const response = await this.http.post(this.logoutEndpoint);
             localStorage.removeItem(this.tokenKey);
+            this.user = null;
+            if (this.onUserChange) {
+                this.onUserChange(null);
+            }
             if (this.onLogout) {
                 this.onLogout();
             }
@@ -59,6 +104,31 @@ class Auth {
         catch (error) {
             return error;
         }
+    }
+    ;
+    isAuthenticated = () => {
+        const token = localStorage.getItem(this.tokenKey);
+        return !!token;
     };
+    async getCurrentUser() {
+        const token = localStorage.getItem(this.tokenKey);
+        if (!token) {
+            return null;
+        }
+        try {
+            const response = await this.http.get(this.currentUserEndpoint);
+            if (this.onUserChange) {
+                this.onUserChange(response.data.data);
+            }
+            return response.data.data;
+        }
+        catch (error) {
+            this.user = null;
+            if (this.onUnauthorized) {
+                this.onUnauthorized();
+            }
+            return null;
+        }
+    }
 }
 export const createAuth = (config) => new Auth(config);

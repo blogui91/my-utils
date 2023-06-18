@@ -1,17 +1,23 @@
 <script setup lang="ts">
 import { createAuth } from '@blogui91/arsenal';
+import { CurrentUser } from '@blogui91/arsenal/dist/auth/types';
 import { Button } from '@blogui91/ui-lib';
+import { onMounted, ref } from 'vue';
 
-import HelloWorld from './components/HelloWorld.vue';
 
-const auth = createAuth({
-  baseURL: 'http://corahui.test',
-  loginURL: 'auth/login',
-  logoutURL: 'auth/logout',
-});
+const currentUser = ref<CurrentUser|null>(null);
+
+const auth = createAuth()
+  .setBaseURL('http://corahui.test')
+  .setCurrentUserEndpoint('/api/me');
+
+auth.onUserChange = (response) => {
+  console.log('El usuario ha cambiado!', response);
+  currentUser.value = response;
+}
 
 const handleSubmit = () => {
-  auth.login('vendedor@corahui.com', 'adminadmin')
+  auth.login({ email: 'vendedor@corahui.com', password: 'adminadmin' })
   .then(response => {
     console.log(response.data);  
   })
@@ -20,11 +26,36 @@ const handleSubmit = () => {
   });
 };
 
+const handleLogout = () => {
+  auth.logout()
+  .then(response => {
+    console.log(response.data);  
+  })
+  .catch(error => {
+    console.log(error);
+  });
+};
+
+onMounted(() => {
+  if (auth.isAuthenticated()) {
+    auth.getCurrentUser();
+  }
+});
+
 </script>
 
 <template>
-  <HelloWorld msg="Vite + Vue" class="text-red-600" />
-  <Button @click="handleSubmit">
-    Login
-  </Button>
+  <div class="flex gap-3 p-3">
+
+    <Button @click="handleSubmit">
+      Login
+    </Button>
+  
+    <Button class="bg-red-500" @click="handleLogout">
+      Logout
+    </Button>
+  </div>
+<pre>
+  {{ currentUser }}
+</pre>
 </template>

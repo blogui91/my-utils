@@ -1,9 +1,11 @@
+/* eslint-disable no-unused-vars */
 export interface Config {
-    baseURL: string;
-    loginURL: string;
-    tokenName?: string
-    logoutURL: string;
-    registerURL?: string;
+    baseURL?: string;
+    loginEndpoint?: string;
+    tokenNEndpoint?: string
+    logoutEndpoint?: string;
+    registerEndpoint?: string;
+    currentUserEndpoint?: string;
 }
 
 export interface RegisterFormData {
@@ -19,14 +21,16 @@ export interface LoginFormData {
     password: string;
 }
 
+export interface CurrentUser {
+    name: string;
+    email: string;
+    [key: string]: string;
+}
+
 export interface LoginResponse {
     data: {
         token: string;
-        user: {
-            name: string;
-            email: string;
-            [key: string]: string;
-        };
+        data: CurrentUser;
         [key: string]: string | object;
     }
 }
