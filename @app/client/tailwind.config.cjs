@@ -1,0 +1,1 @@
+module.exports = require('@blogui91/tailwind-config/tailwind.config.cjs');
