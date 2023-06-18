@@ -13,7 +13,7 @@
     "url": "https://github.com/blogui91/my-utils"
   },
   "publishConfig": {
-    "@blogui91:registry": "https://npm.pkg.github.com/" 
+    "@blogui91:registry": "https://npm.pkg.github.com" 
   },
   "scripts": {
     "dev": "vite build --watch",
