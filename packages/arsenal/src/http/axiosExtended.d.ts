@@ -1,5 +1,5 @@
-import type { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from "axios";
-export declare class Axios {
+import { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios';
+export declare class AxiosExtended {
     interceptors: {
         /**
          * The **Request** interceptor will be call rigth before the `http request`
@@ -14,5 +14,5 @@ export declare class Axios {
          */
         response: AxiosInterceptorManager<AxiosResponse>;
     };
-    constructor(props: AxiosRequestConfig);
+    constructor(config: AxiosRequestConfig);
 }

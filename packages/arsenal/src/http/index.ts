@@ -1,181 +1,117 @@
 /* eslint-disable no-unused-vars */
-import { Axios } from 'axios';
+import { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 
-import { Config, CurrentUser, LoginFormData, LoginResponse, RegisterFormData, RegisterResponse } from './types';
+import { AxiosExtended } from './axiosExtended';
 
-class Auth extends Axios {
-  private baseURL: string = '';
-  private loginEndpoint: string = 'auth/login';
-  private logoutEndpoint: string = 'auth/logout';
-  private currentUserEndpoint: string = 'auth/me';
-  private registerEndpoint: string = 'auth/register';
-  private tokenKey = 'token';
+class Http extends AxiosExtended {
+  private tokenKey = 'auth::token';
 
-  public onRegister?: (data: RegisterResponse) => void;
-  public onLogin?: (data: LoginResponse) => void;
-  public onLogout?: () => void;
-  public onUnauthorized?: () => void;
-  public onUserChange?: (user: CurrentUser|null) => void;
-  public user: CurrentUser | null = null;
+  public constructor(config: AxiosRequestConfig) {
+    super(config);
 
-  constructor(config?: Config) {
-    super();
+    this.getUri = this.getUri.bind(this);
+    this.request = this.request.bind(this);
+    this.get = this.get.bind(this);
+    this.options = this.options.bind(this);
+    this.delete = this.delete.bind(this);
+    this.head = this.head.bind(this);
+    this.post = this.post.bind(this);
+    this.put = this.put.bind(this);
+    this.patch = this.patch.bind(this);
 
-    if (config?.baseURL) {
-      this.baseURL = config.baseURL;
-      this.defaults.baseURL = this.baseURL;
-    }
-    
-    if (config?.loginEndpoint) {
-      this.loginEndpoint = config.loginEndpoint;
-    }
+    this.interceptors.request.use(
+      (config: any) => {
+        const token = this.getToken();
 
-    if (config?.logoutEndpoint) {
-      this.logoutEndpoint = config.logoutEndpoint;
-    }
+        if (token) {
+          config.headers.Authorization = token;
+        }
 
-    if (config?.registerEndpoint) {
-      this.registerEndpoint = config.registerEndpoint;
-    }
+        return config;
+      },
+      (error: unknown) => {
+        // handling error
+      },
+    );
 
-    if (config?.currentUserEndpoint) {
-      this.currentUserEndpoint = config.currentUserEndpoint;
-    }
-
-    this.defaults.headers.common['Content-Type'] = 'application/json';
-    this.defaults.headers.common['Accept'] = 'application/json';
-
-    this.interceptors.request.use((config) => {
-      const token = localStorage.getItem(this.tokenKey);
-
-      if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-      }
-
-      return config;
-    });
   }
 
-  setBaseURL = (baseURL: string) => {
-    this.baseURL = baseURL;
-    this.defaults.baseURL = baseURL;
-
-    return this;
+  public getUri(config?: AxiosRequestConfig): string {
+    return this.getUri(config);
   }
 
-  setLoginEndpoint = (loginEndpoint: string) => {
-    this.loginEndpoint = loginEndpoint;
-
-    return this;
+  public request<T = any, R = AxiosResponse<T>, D = any>(config: AxiosRequestConfig<D>): Promise<R> {
+    return this.request(config);
+  }
+  
+  public get<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.get(url, config);
   }
 
-  setLogoutEndpoint = (logoutEndpoint: string) => {
-    this.logoutEndpoint = logoutEndpoint;
-
-    return this;
+  public options<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.options(url, config);
+  }
+  
+  public delete<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.delete(url, config);
   }
 
-  setRegisterEndpoint = (registerEndpoint: string) => {
-    this.registerEndpoint = registerEndpoint;
-
-    return this;
+  public head<T = any, R = AxiosResponse<T>, D = any>(url: string, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.head(url, config);
   }
 
-  setCurrentUserEndpoint = (currentUserEndpoint: string) => {
-    this.currentUserEndpoint = currentUserEndpoint;
-
-    return this;
+  public post<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.post(url, data, config);
+  }
+ 
+  public put<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.put(url, data, config);
+  }
+ 
+  public patch<T = any, R = AxiosResponse<T>, D = any>(url: string, data?: D, config?: AxiosRequestConfig<D>): Promise<R> {
+    return this.patch(url, data, config);
   }
 
-  register = async (formData: RegisterFormData) => {
-    const response = await this.post<RegisterFormData, RegisterResponse>(this.registerEndpoint, {
-      ...formData,
-    });
-
-    if (this.onRegister) {
-      this.onRegister(response);
-    }
-
+  public success<T>(response: AxiosResponse<T>): T {
     return response.data;
   }
+ 
+  public error<T>(error: AxiosError<T>): void {
+    throw error;
+  }
 
-  async login({ email, password }: LoginFormData) {
-    const response = await this.post<LoginFormData, LoginResponse>(this.loginEndpoint, {
-      email,
-      password,
-    });
+  /**
+   * Gets Token.
+   *
+   * @returns {string} token.
+   * @memberof Api
+   */
+  getToken = (): string => {
+    const token = localStorage.getItem(this.tokenKey);
 
-    localStorage.setItem(this.tokenKey, response.data.token);
+    return `Bearer ${token}`;
+  }
+  /**
+   * Sets Token.
+   *
+   * @param {string} token - token.
+   * @memberof Api
+   */
+  setToken = (token: string): void => {
+    localStorage.setItem(this.tokenKey, token);
+  }
 
-    this.user = response.data.data;
-
-    if (this.onLogin) {
-      this.onLogin(response);
-    }
-
-    if (this.onUserChange) {
-      this.onUserChange(response.data.data);
-    }
-    
-    return response.data;
-  };
-
-  async logout() {
-    try {
-      const response = await this.post(this.logoutEndpoint);
-
-      localStorage.removeItem(this.tokenKey);
-
-      this.user = null;
-
-      if (this.onUserChange) {
-        this.onUserChange(null);
-      }
-
-      if (this.onLogout) {
-        this.onLogout();
-      }
-
-      return response.data;
-    } catch (error) {
-      return error;
-    }
-  };
+  clearToken = (): void => {
+    localStorage.removeItem(this.tokenKey);
+  }
 
   isAuthenticated = () => {
     const token = localStorage.getItem(this.tokenKey);
 
     return !!token;
-  }
-
-  getHttpInstance = () => this;
-
-  async getCurrentUser() {
-    const token = localStorage.getItem(this.tokenKey);
-
-    if (!token) {
-      return null;
-    }
-
-    try {
-      const response = await this.get<{ data: CurrentUser }>(this.currentUserEndpoint);
-
-      if (this.onUserChange) {
-        this.onUserChange(response.data.data);
-      }
-
-      return response.data.data;
-    } catch (error) {
-      this.user = null;
-      if (this.onUnauthorized) {
-        this.onUnauthorized();
-      }
-
-      return null;
-    }
-  }
-
-
+  };
 }
 
-export const createHttp = (config?: Config) => new Auth(config);
+export default Http;
+
+export const createHttp = (config: AxiosRequestConfig) => new Http(config);

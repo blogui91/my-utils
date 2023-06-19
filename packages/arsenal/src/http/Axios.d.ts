@@ -1,4 +1,4 @@
-import type { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from 'axios';
 export declare class Axios {
     interceptors: {
         /**
@@ -14,5 +14,5 @@ export declare class Axios {
          */
         response: AxiosInterceptorManager<AxiosResponse>;
     };
-    constructor(props: AxiosRequestConfig);
+    constructor(config: AxiosRequestConfig);
 }

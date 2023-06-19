@@ -1,36 +1,21 @@
 /* eslint-disable no-unused-vars */
-export interface Config {
-    baseURL?: string;
-    loginEndpoint?: string;
-    tokenNEndpoint?: string
-    logoutEndpoint?: string;
-    registerEndpoint?: string;
-    currentUserEndpoint?: string;
-}
 
-export interface RegisterFormData {
-    email: string;
-    password: string;
-    [key: string]: string;
-}
+import type { AxiosInterceptorManager, AxiosRequestConfig, AxiosResponse } from "axios";
 
-export interface RegisterResponse extends LoginResponse {}
-
-export interface LoginFormData {
-    email: string;
-    password: string;
-}
-
-export interface CurrentUser {
-    name: string;
-    email: string;
-    [key: string]: string;
-}
-
-export interface LoginResponse {
-    data: {
-        token: string;
-        data: CurrentUser;
-        [key: string]: string | object;
-    }
+export declare class Axios {
+    interceptors: {
+        /**
+         * The **Request** interceptor will be call rigth before the `http request`
+         * @summary
+         * This a useful method especially if you need to send a token on each request.
+         */
+        request: AxiosInterceptorManager<AxiosRequestConfig>;
+        /**
+         * The **Response** interceptor will be call rigth before the `http request` is received.
+         * @summary
+         * This a useful method especially if you need to send a token on each request.
+         */
+        response: AxiosInterceptorManager<AxiosResponse>;
+    };
+    constructor(props: AxiosRequestConfig);
 }

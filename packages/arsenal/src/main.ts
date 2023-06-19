@@ -1,2 +1,2 @@
-export { createHttp } from "./http";
+export { createAuth } from "./auth/index";
 
