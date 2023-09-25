@@ -1,0 +1,10 @@
+
+p {
+  @apply au-bg-red-200; 
+}
+
+p b {
+  @apply au-text-orange-500;
+}
+  
+  

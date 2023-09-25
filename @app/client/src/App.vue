@@ -1,10 +1,10 @@
 <script setup lang="ts">
+// import { CurrentUser } from '@blogui91/arsenal/dist/auth/types';
 import { createAuth } from '@blogui91/arsenal';
-import { CurrentUser } from '@blogui91/arsenal/dist/auth/types';
 import { Button } from '@blogui91/ui-lib';
 import { onMounted, ref } from 'vue';
 
-const currentUser = ref<CurrentUser|null>(null);
+const currentUser = ref<any|null>(null);
 
 const auth = createAuth({
   baseURL: 'http://corahui.test',
@@ -39,10 +39,16 @@ onMounted(() => {
   }
 });
 
+const errors = { "message": "El campo surcharges.4.days_after_cut_off es requerido.", "errors": { "surcharges.4.days_after_cut_off": ["El campo surcharges.4.days_after_cut_off es requerido."] } }
+
 </script>
 
 <template>
   <div class="flex gap-3 p-3">
+
+    <app-form-field :errors="errors" name="surcharges.4.days_after_cut_off" label="Nombre">
+      <input type="text" class=" border-gray-300 transition-all border h-[44px] rounded p-2">
+    </app-form-field>
 
     <Button @click="handleSubmit">
       Login

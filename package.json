@@ -6,6 +6,7 @@
   "scripts": {
     "client": "pnpm --filter @blogui91/client",
     "lib": "pnpm --filter @blogui91/ui-lib",
+    "agnostic-ui": "pnpm --filter @blogui91/agnostic-ui",
     "arsenal": "pnpm --filter @blogui91/arsenal",
     "dev": "pnpm --recursive --parallel --stream run dev"
   },
